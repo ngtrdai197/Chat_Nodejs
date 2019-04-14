@@ -1,6 +1,6 @@
 var socket = io();
 
-$(document).ready(function () {
+$(document).ready(() => {
     var me = "";
     $('#signin').click(() => {
         var username = $('#username').val();
@@ -13,23 +13,21 @@ $(document).ready(function () {
                 me = username;
                 $('.contacts').html('');
                 list_user.map(user => {
-                    console.log(user);
-
                     $('.contacts').append(
                         `
-                        <li class="active">
-                            <div class="d-flex bd-highlight">
-                                <div class="img_cont">
-                                    <img src="https://devilsworkshop.org/files/2013/01/enlarged-facebook-profile-picture.jpg"
-                                        class="rounded-circle user_img">
-                                    <span class="online_icon"></span>
+                            <li class="active">
+                                <div class="d-flex bd-highlight">
+                                    <div class="img_cont">
+                                        <img src="https://devilsworkshop.org/files/2013/01/enlarged-facebook-profile-picture.jpg"
+                                            class="rounded-circle user_img">
+                                        <span class="online_icon"></span>
+                                    </div>
+                                    <div class="user_info">
+                                        <span>${user}</span>
+                                        <p>${user} is online</p>
+                                    </div>
                                 </div>
-                                <div class="user_info">
-                                    <span>${user}</span>
-                                    <p>${user} is online</p>
-                                </div>
-                            </div>
-                        </li>
+                            </li>
                         `
                     )
                 })
@@ -47,7 +45,6 @@ $(document).ready(function () {
         });
         $('.contacts').html('');
         list_user.map(user => {
-            console.log(user);
             $('.contacts').append(
                 `
                 <li class="active">
@@ -64,35 +61,50 @@ $(document).ready(function () {
             )
         })
     })
-    $('#send-message').click(function(){
+    $('#send-message').click(function () {
         var content = $('#content-message').val();
-        if(content){
+        if (content) {
             socket.emit('send-message', content);
             $('#content-message').val('');
         }
     })
-    socket.on('server-send-message', (server_send_message)=> {
-        if(server_send_message.username === me){
-            console.log('cos');
-            
+    $('#content-message').keyup((e) => {
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+            var content = $('#content-message').val();
+        if (content) {
+            socket.emit('send-message', content);
+            $('#content-message').val('');
+        }
+        }
+    });
+    socket.on('server-send-message', (server_send_message) => {
+        var year = new Date(Date.now()).getFullYear();
+        var month = new Date(Date.now()).getMonth();
+        var day = new Date(Date.now()).getDate();
+        var hours = new Date(Date.now()).getHours();
+        var minutes = new Date(Date.now()).getMinutes();
+        var seconds = new Date(Date.now()).getSeconds();
+        var times = `${day}-${month}-${year}*times:${hours}:${minutes}:${seconds}`;
+        if (server_send_message.username === me) {
             $('.msg_card_body').append(
                 `
                     <div class="d-flex justify-content-end mb-4">
-                        <div class="msg_cotainer_send">
+                        <div class="msg_cotainer_send" title=${times}>
                             ${server_send_message.message}
-                            <span class="msg_time_send">${new Date(Date.now())}</span>
+                            <span class="msg_time_send">${server_send_message.username}</span>
                         </div>
                     </div>
                 `
             )
         }
-        else{
+        else {
             $('.msg_card_body').append(
                 `
                 <div class="d-flex justify-content-start mb-4">
-                    <div class="msg_cotainer">
+                    <div class="msg_cotainer" title=${times}>
                     ${server_send_message.message}
-                    <span class="msg_time_send">${new Date(Date.now()).}</span>
+                    <span class="msg_time_send">${server_send_message.username}</span>
                     </div>
                 </div>
                 `

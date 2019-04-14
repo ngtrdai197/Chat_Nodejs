@@ -25,7 +25,6 @@ io.on('connection', (socket) => {
 
     })
     socket.on('send-message', content_message => {
-        console.log(content_message);
         const message = {
             username: socket.userName,
             message: content_message
